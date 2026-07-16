@@ -4,6 +4,7 @@ import viteLogo from './assets/vite.svg';
 import heroImg from './assets/hero.png';
 import './App.css';
 import Player from './components/Player';
+import GameBoard from './components/GameBoard';
 
 function App() {
   return (
@@ -13,8 +14,9 @@ function App() {
           <Player initialname="Player 1" symbol="X" />
           <Player initialname="Player 2" symbol="O" />
         </ol>
-        GAME BOARD
+        <GameBoard />
       </div>
+      LOG
     </main>
   );
 }
