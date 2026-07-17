@@ -22,7 +22,7 @@ A simple Tic-Tac-Toe game built with React to practice React fundamentals.
 1. Clone the repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/duckonzz/tic-tac-toe-game.git
 ```
 
 2. Install dependencies
