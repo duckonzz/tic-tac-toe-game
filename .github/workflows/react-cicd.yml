@@ -1,0 +1,86 @@
+name: React CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+  # pull_request:
+  #   branches:
+  #     - main
+
+jobs:
+  build:
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run lint
+
+      - run: npm run build
+
+      - name: Create Artifact
+        run: |
+          cd dist
+          zip -r ../artifact-${{ github.run_number }}.zip .
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: react-build
+          path: artifact-${{ github.run_number }}.zip
+
+  deploy:
+    timeout-minutes: 10
+    needs: build
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: react-build
+          path: artifacts
+
+      - name: Upload Package
+
+        uses: appleboy/scp-action@v0.1.7
+
+        with:
+          host: ${{ secrets.VPS_HOST }}
+
+          username: ${{ secrets.VPS_USER }}
+
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+          source: artifacts/artifact-${{ github.run_number }}.zip
+
+          target: /var/www/tic-tac-toe/packages
+
+      - name: Deploy
+
+        uses: appleboy/ssh-action@v1.0.3
+
+        with:
+          host: ${{ secrets.VPS_HOST }}
+
+          username: ${{ secrets.VPS_USER }}
+
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+          script: |
+            chmod +x /var/www/tic-tac-toe/scripts/deploy.sh
+
+            RELEASE_NAME="${{ github.run_number }}-$(date +%Y%m%d%H%M%S)"
+
+            /var/www/tic-tac-toe/scripts/deploy.sh \
+              /var/www/tic-tac-toe/packages/artifact-${{ github.run_number }}.zip \
+              "$RELEASE_NAME"
