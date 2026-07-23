@@ -56,14 +56,11 @@ jobs:
 
         with:
           host: ${{ secrets.VPS_HOST }}
-
           username: ${{ secrets.VPS_USER }}
-
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-
           source: artifacts/artifact-${{ github.run_number }}.zip
-
           target: /var/www/tic-tac-toe/packages
+          strip_components: 1
 
       - name: Deploy
 
